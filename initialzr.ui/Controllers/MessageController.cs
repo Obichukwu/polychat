@@ -13,7 +13,8 @@ namespace initialzr.ui.Controllers {
 
         // GET api/message
         public IEnumerable<MessageDto> GetMessages() {
-            return DbContext.Messages.AsEnumerable().Select(item => new MessageDto(item)); ;
+            Profile curUser = DbContext.Profiles.Find(PrincipalId);
+            return DbContext.Messages.Where(el => el.Participants.Contains(curUser)).AsEnumerable().Select(item => new MessageDto(item)); ;
         }
 
         // GET api/message/5

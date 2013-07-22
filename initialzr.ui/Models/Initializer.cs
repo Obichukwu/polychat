@@ -227,7 +227,7 @@ namespace initialzr.ui.Models {
 
         private static void populatePost(InitialzrContext context) {
             foreach (var item in context.Profiles) {
-                item.Post = new List<Post> {
+                item.Posts = new List<Post> {
                     new Post {
                         PostDate = DateTime.Now,
                         Content="this is a great day for all of us",

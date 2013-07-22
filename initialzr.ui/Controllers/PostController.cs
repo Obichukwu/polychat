@@ -13,7 +13,11 @@ namespace initialzr.ui.Controllers {
 
         // GET api/Post
         public IEnumerable<PostDto> GetPosts() {
-            return DbContext.Posts.Include("Discussion").AsEnumerable().Select(item => new PostDto(item)); ;
+            Profile curUser = DbContext.Profiles.Find(PrincipalId) ;
+            var depMembers = curUser.Department.Profiles.Select(el => el.Id);
+            return DbContext.Posts.Include("Discussion")
+                .Where(el => depMembers.Contains(el.OwnerId) )
+                .AsEnumerable().Select(item => new PostDto(item)); ;
         }
 
         // GET api/Post/5

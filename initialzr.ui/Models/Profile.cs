@@ -24,12 +24,12 @@ namespace initialzr.ui.Models {
 
         public virtual Department Department { get; set; }
 
-        public virtual ICollection<Post> Post { get; set; }
+        public virtual ICollection<Post> Posts { get; set; }
 
         public virtual ICollection<Message> Messages { get; set; }
 
         public Profile() {
-            Post = new List<Post>();
+            Posts = new List<Post>();
             Messages = new List<Message>();
         }
     }

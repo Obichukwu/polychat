@@ -1,5 +1,9 @@
 ﻿using initialzr.ui.Models;
+using System.Security.Principal;
+using System.Web;
 using System.Web.Http;
+using System.Linq;
+using System.Security.Claims;
 
 namespace initialzr.ui.Controllers {
 
@@ -10,7 +14,7 @@ namespace initialzr.ui.Controllers {
         protected override void Initialize(System.Web.Http.Controllers.HttpControllerContext controllerContext) {
             base.Initialize(controllerContext);
             if (DbContext == null)
-                DbContext = new InitialzrContext(); ;
+                DbContext = new InitialzrContext();
         }
 
         protected override void Dispose(bool disposing) {
@@ -22,7 +26,17 @@ namespace initialzr.ui.Controllers {
         }
     }
 
-    //[Authorize]
+    [Authorize]
     public class SecureBaseApiController : BaseApiController {
+        public int PrincipalId { get; set; }
+
+        protected override void Initialize(System.Web.Http.Controllers.HttpControllerContext controllerContext) {
+            base.Initialize(controllerContext);
+            if (HttpContext.Current != null) {
+                GenericPrincipal principal = (GenericPrincipal)HttpContext.Current.User;
+                GenericIdentity identity = (GenericIdentity)principal.Identity;
+                PrincipalId = System.Convert.ToInt32(identity.Claims.First(el => el.Type == ClaimTypes.Sid).Value);
+            }
+        }
     }
 }

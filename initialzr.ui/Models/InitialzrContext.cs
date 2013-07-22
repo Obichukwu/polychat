@@ -103,7 +103,7 @@ namespace initialzr.ui.Models {
             entity.Property(e => e.Password).HasMaxLength(100);
 
             //Relationships
-            entity.HasMany(e => e.Post).WithRequired(e => e.Owner).HasForeignKey(e => e.OwnerId);
+            entity.HasMany(e => e.Posts).WithRequired(e => e.Owner).HasForeignKey(e => e.OwnerId);
             entity.HasMany(e => e.Messages).WithMany(e => e.Participants);
         }
 
