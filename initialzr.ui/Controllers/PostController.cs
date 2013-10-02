@@ -68,7 +68,7 @@ namespace initialzr.ui.Controllers {
                 DbContext.SaveChanges();
 
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, new PostDto(dbPost));
-                response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = post.PostId }));
+                response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = dbPost.Id }));
                 return response;
             } else {
                 return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);

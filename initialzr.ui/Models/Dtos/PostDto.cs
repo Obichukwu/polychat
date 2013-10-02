@@ -7,8 +7,6 @@ namespace initialzr.ui.Models.Dtos {
 
         public int PostId { get; set; }
 
-        public string Smug { get; set; }
-
         public DateTime PostDate { get; set; }
 
         public string Content { get; set; }
@@ -17,7 +15,7 @@ namespace initialzr.ui.Models.Dtos {
 
         public int OwnerId { get; set; }
 
-        public virtual ICollection<string> Discussion { get; set; }
+        public virtual ICollection<PostDiscussionDto> Discussion { get; set; }
 
         public PostDto() {
         }
@@ -28,12 +26,10 @@ namespace initialzr.ui.Models.Dtos {
             this.Content = entity.Content;
             this.ContentType = entity.ContentType;
             this.OwnerId = entity.OwnerId;
-            this.Discussion = new List<string>();
+            this.Discussion = new List<PostDiscussionDto>();
 
             foreach (var dis in entity.Discussion) {
-                var item = "\"date\":\"{0}\",\"note\":\"{1}\"";
-                item = "{" + String.Format(item, dis.Date.ToString("G"), dis.Note) + "}";
-                this.Discussion.Add(item);
+                this.Discussion.Add(new PostDiscussionDto(dis));
             }
         }
     }

@@ -12,6 +12,8 @@ namespace initialzr.ui.Models.Dtos {
 
         public int MessageId { get; set; }
 
+        public int PosterId { get; set; }
+
         public MessageDiscussionDto() {
         }
 
@@ -21,6 +23,7 @@ namespace initialzr.ui.Models.Dtos {
             this.Date = entity.Date;
 
             this.MessageId = entity.MessageId;
+            this.PosterId = entity.ProfileId;
         }
     }
 }

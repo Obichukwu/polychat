@@ -13,18 +13,18 @@ namespace initialzr.ui.Controllers {
 
         // GET api/message
         public IEnumerable<MessageDto> GetMessages() {
-            Profile curUser = DbContext.Profiles.Find(PrincipalId);
-            return DbContext.Messages.Where(el => el.Participants.Contains(curUser)).AsEnumerable().Select(item => new MessageDto(item)); ;
+            //Profile curUser = DbContext.Profiles.Find(PrincipalId);
+            var msgs = DbContext.Messages.Where(el => el.Participants.Any(l => l.Id == PrincipalId)).ToList();
+            return msgs.Select(item => new MessageDto(item)); ;
         }
 
         // GET api/message/5
-        public MessageDto GetMessage(int id) {
+        public IEnumerable<MessageDiscussionDto> GetMessage(int id) {
             Message message = DbContext.Messages.Find(id);
             if (message == null) {
                 throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
             }
-
-            return new MessageDto(message);
+            return message.Discussion.Select(el => new MessageDiscussionDto(el));
         }
 
         // PUT api/message/5
@@ -50,17 +50,28 @@ namespace initialzr.ui.Controllers {
         }
 
         // POST api/message
-        public HttpResponseMessage PostMessage(MessageDto message) {
-            if (ModelState.IsValid) {
-                var dbMessage = new Message { LastMessageDate = DateTime.Now };
-                dbMessage.Participants = new List<Profile> {
-                        DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(0))),
-                        DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(1))) };
+        public HttpResponseMessage PostMessage(MessageDiscussionDto messageDiscussion) {
+            //var dbMessage = new Message { LastMessageDate = DateTime.Now };
+            //dbMessage.Participants = new List<Profile> {
+            //            DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(0))),
+            //            DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(1))) };
 
-                DbContext.Messages.Add(dbMessage);
+            //DbContext.Messages.Add(dbMessage);
+            //DbContext.SaveChanges();
+            if (ModelState.IsValid) {
+                var dbMessage = DbContext.Messages.Find(messageDiscussion.MessageId);
+
+                var diss = new MessageDiscussion {
+                    Date = DateTime.Now,
+                    Note = messageDiscussion.Note,
+                    ProfileId = messageDiscussion.PosterId
+                };
+
+                dbMessage.Discussion.Add(diss);
+
                 DbContext.SaveChanges();
 
-                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, new MessageDto(dbMessage));
+                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, new MessageDiscussionDto(diss));
                 response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = dbMessage.Id }));
                 return response;
             } else {
