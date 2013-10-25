@@ -14,6 +14,7 @@ namespace initialzr.ui.Models.Dtos {
         public int ContentType { get; set; }
 
         public int OwnerId { get; set; }
+        public string Ownername { get; set; }
 
         public virtual ICollection<PostDiscussionDto> Discussion { get; set; }
 
@@ -26,6 +27,9 @@ namespace initialzr.ui.Models.Dtos {
             this.Content = entity.Content;
             this.ContentType = entity.ContentType;
             this.OwnerId = entity.OwnerId;
+
+            this.Ownername = entity.Owner.FirstName + " " + entity.Owner.LastName;
+
             this.Discussion = new List<PostDiscussionDto>();
 
             foreach (var dis in entity.Discussion) {

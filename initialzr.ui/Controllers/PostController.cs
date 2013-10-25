@@ -15,7 +15,7 @@ namespace initialzr.ui.Controllers {
         public IEnumerable<PostDto> GetPosts() {
             Profile curUser = DbContext.Profiles.Find(PrincipalId) ;
             var depMembers = curUser.Department.Profiles.Select(el => el.Id);
-            return DbContext.Posts.Include("Discussion")
+            return DbContext.Posts.Include("Discussion").Include("Owner")
                 .Where(el => depMembers.Contains(el.OwnerId) )
                 .AsEnumerable().Select(item => new PostDto(item)); ;
         }

@@ -80,16 +80,28 @@ namespace initialzr.ui.Controllers {
         }
 
         // DELETE api/message/5
-        public HttpResponseMessage DeleteMessage(int id) {
-            Message message = DbContext.Messages.Find(id);
-            if (message == null) {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
+        public MessageDto DeleteMessage(int id)
+        {
+            if (DbContext.Profiles.Find(id) == null)
+            {
+                throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
             }
 
-            DbContext.Messages.Remove(message);
-            DbContext.SaveChanges();
-
-            return Request.CreateResponse(HttpStatusCode.OK, new MessageDto(message));
+            Message message;
+            if (DbContext.Messages.Any(el => el.Participants.Any(l => l.Id == PrincipalId) &&
+                                             el.Participants.Any(l => l.Id == id)))
+                message = DbContext.Messages
+                    .First(el => el.Participants.Any(l => l.Id == PrincipalId) &&
+                                 el.Participants.Any(l => l.Id == id));
+            else
+            {
+                message = new Message {
+                    LastMessageDate = DateTime.Now,
+                    Participants = new List<Profile> { DbContext.Profiles.Find(PrincipalId), DbContext.Profiles.Find(id) }
+                };
+                DbContext.Messages.Add(message);
+            }
+            return new MessageDto(message);
         }
     }
 }

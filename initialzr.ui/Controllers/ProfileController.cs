@@ -45,12 +45,11 @@ namespace initialzr.ui.Controllers {
             dbProfile.About = profile.About;
             dbProfile.Email = profile.Email;
             dbProfile.Password = profile.Password;
-            dbProfile.RoleId = profile.RoleId;
             dbProfile.DepartmentId = profile.DepartmentId;
 
             DbContext.SaveChanges();
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            return Request.CreateResponse(HttpStatusCode.OK, new ProfileDto(dbProfile));
         }
 
         // POST api/Profile

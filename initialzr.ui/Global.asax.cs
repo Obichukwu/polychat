@@ -26,49 +26,50 @@ namespace initialzr.ui {
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
             System.Data.Entity.Database.SetInitializer(new Initializer());
-            
 
             GlobalConfiguration.Configuration.MessageHandlers.Add(new AuthHandler());
         }
     }
 
-    public class AuthHandler : System.Net.Http.DelegatingHandler {
+    public class AuthHandler : DelegatingHandler {
         public const string BasicScheme = "Basic";
         public const string ChallengeAuthenticationHeaderName = "WWW-Authenticate";
         public const char AuthorizationHeaderSeparator = ':';
 
-        private InitialzrContext Store;
+        private readonly InitialzrContext store;
 
         public AuthHandler() {
-            Store = new InitialzrContext();
+            store = new InitialzrContext();
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) {
             var authHeader = request.Headers.Authorization;
-            if (authHeader != null) {
-                if (authHeader.Scheme == BasicScheme) {
-                    var encodedCredentials = authHeader.Parameter;
+            if (authHeader == null) return base.SendAsync(request, cancellationToken);
+            if (authHeader.Scheme != BasicScheme) return base.SendAsync(request, cancellationToken);
+            var encodedCredentials = authHeader.Parameter;
                     
-                    var credentialBytes = Convert.FromBase64String(encodedCredentials);
-                    var credentials = Encoding.ASCII.GetString(credentialBytes);
-                    var credentialParts = credentials.Split(AuthorizationHeaderSeparator);
-                    if (credentialParts.Length != 2) {
-                        return CreateUnauthorizedResponse();
-                    }
-                    var username = credentialParts[0].Trim();
-                    var password = credentialParts[1].Trim();
-
-                    if (!Store.Profiles.Any(el => el.Email == username && el.Password == password)) {
-                        return CreateUnauthorizedResponse();
-                    }
-                    SetPrincipal(Store.Profiles.First(el => el.Email == username && el.Password == password));
-                }
+            var credentialBytes = Convert.FromBase64String(encodedCredentials);
+            var credentials = Encoding.ASCII.GetString(credentialBytes);
+            var credentialParts = credentials.Split(AuthorizationHeaderSeparator);
+            if (credentialParts.Length != 2) {
+                return CreateUnauthorizedResponse();
             }
+            var username = credentialParts[0].Trim();
+            var password = credentialParts[1].Trim();
+
+            lock (this)
+            {
+                if (!store.Profiles.Any(el => el.Email == username && el.Password == password)) {
+                    return CreateUnauthorizedResponse();
+                }
+                SetPrincipal(store.Profiles.First(el => el.Email == username && el.Password == password));
+            }
+
             return base.SendAsync(request, cancellationToken);
         }
 
         protected override void Dispose(bool disposing) {
-            using (Store) { Store.SaveChanges(); }
+            using (store) { store.SaveChanges(); }
             base.Dispose(disposing);
         }
 

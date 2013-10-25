@@ -46,7 +46,7 @@ namespace initialzr.ui.Controllers {
 
             DbContext.SaveChanges();
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            return Request.CreateResponse(HttpStatusCode.OK, new DepartmentDto(dbDepartment));
         }
 
         // POST api/Department

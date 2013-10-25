@@ -12,17 +12,18 @@ namespace initialzr.ui.Controllers {
         public InitialzrContext DbContext { get; set; }
 
         protected override void Initialize(System.Web.Http.Controllers.HttpControllerContext controllerContext) {
-            base.Initialize(controllerContext);
             if (DbContext == null)
                 DbContext = new InitialzrContext();
+
+            base.Initialize(controllerContext);
         }
 
         protected override void Dispose(bool disposing) {
-            base.Dispose(disposing);
             using (DbContext) {
                 if (DbContext != null)
                     DbContext.SaveChanges();
             }
+            base.Dispose(disposing);
         }
     }
 
@@ -31,12 +32,12 @@ namespace initialzr.ui.Controllers {
         public int PrincipalId { get; set; }
 
         protected override void Initialize(System.Web.Http.Controllers.HttpControllerContext controllerContext) {
-            base.Initialize(controllerContext);
             if (HttpContext.Current != null) {
-                GenericPrincipal principal = (GenericPrincipal)HttpContext.Current.User;
-                GenericIdentity identity = (GenericIdentity)principal.Identity;
+                var principal = (GenericPrincipal)HttpContext.Current.User;
+                var identity = (GenericIdentity)principal.Identity;
                 PrincipalId = System.Convert.ToInt32(identity.Claims.First(el => el.Type == ClaimTypes.Sid).Value);
             }
+            base.Initialize(controllerContext);
         }
     }
 }
