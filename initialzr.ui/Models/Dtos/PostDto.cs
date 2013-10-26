@@ -16,7 +16,7 @@ namespace initialzr.ui.Models.Dtos {
         public int OwnerId { get; set; }
         public string Ownername { get; set; }
 
-        public virtual ICollection<PostDiscussionDto> Discussion { get; set; }
+        public ICollection<PostDiscussionDto> Discussion { get; set; }
 
         public PostDto() {
         }

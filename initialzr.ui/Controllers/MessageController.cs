@@ -24,29 +24,43 @@ namespace initialzr.ui.Controllers {
             if (message == null) {
                 throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
             }
+
+            message.LastMessageDate = DateTime.Now;
+            
             return message.Discussion.Select(el => new MessageDiscussionDto(el));
         }
 
         // PUT api/message/5
-        public HttpResponseMessage PutMessage(int id, MessageDto message) {
-            if (!ModelState.IsValid) {
-                return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
-            }
+        public HttpResponseMessage PutMessage(int id, object dateUpdate) {
+            //if (!ModelState.IsValid) {
+            //    return Request.CreateErrorResponse(HttpStatusCode.BadRequest, ModelState);
+            //}
 
-            if (id != message.MessageId) {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
-            }
+            //if (id != message.MessageId) {
+            //    return Request.CreateResponse(HttpStatusCode.BadRequest);
+            //}
 
-            //get the database version and change only the properties i want
-            var dbmessage = DbContext.Messages.Find(id);
-            if (dbmessage == null) {
+            ////get the database version and change only the properties i want
+            //var dbmessage = DbContext.Messages.Find(id);
+            //if (dbmessage == null) {
+            //    return Request.CreateResponse(HttpStatusCode.NotFound);
+            //}
+            //dbmessage.LastMessageDate = message.LastMessageDate;
+
+            //DbContext.SaveChanges();
+
+            //return Request.CreateResponse(HttpStatusCode.OK);
+
+
+            var msg = DbContext.Messages.Find(id);
+            var lastupdate = Convert.ToDateTime(dateUpdate);
+            if (msg == null) {
                 return Request.CreateResponse(HttpStatusCode.NotFound);
             }
-            dbmessage.LastMessageDate = message.LastMessageDate;
+            msg.LastMessageDate = DateTime.Now;
 
-            DbContext.SaveChanges();
-
-            return Request.CreateResponse(HttpStatusCode.OK);
+            var res = msg.Discussion.Where(el => el.Date >= lastupdate && el.ProfileId != PrincipalId).Select(el => new MessageDiscussionDto(el));
+            return Request.CreateResponse(HttpStatusCode.OK, res);
         }
 
         // POST api/message
@@ -82,8 +96,7 @@ namespace initialzr.ui.Controllers {
         // DELETE api/message/5
         public MessageDto DeleteMessage(int id)
         {
-            if (DbContext.Profiles.Find(id) == null)
-            {
+            if (DbContext.Profiles.Find(id) == null) {
                 throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
             }
 
@@ -93,8 +106,7 @@ namespace initialzr.ui.Controllers {
                 message = DbContext.Messages
                     .First(el => el.Participants.Any(l => l.Id == PrincipalId) &&
                                  el.Participants.Any(l => l.Id == id));
-            else
-            {
+            else {
                 message = new Message {
                     LastMessageDate = DateTime.Now,
                     Participants = new List<Profile> { DbContext.Profiles.Find(PrincipalId), DbContext.Profiles.Find(id) }

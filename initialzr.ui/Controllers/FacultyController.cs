@@ -47,7 +47,7 @@ namespace initialzr.ui.Controllers {
 
             DbContext.SaveChanges();
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            return Request.CreateResponse(HttpStatusCode.OK, new FacultyDto(dbFaculty));
         }
 
         // POST api/Faculty

@@ -22,15 +22,20 @@ namespace initialzr.ui.Controllers
             return dept.Discussion.Where(el=> el.Date >= DateTime.Now.AddDays(-1)).Select(el => new ChatDiscussionDto(el));
         }
 
+        // PUT api/Chat/5 == Abused
+        public HttpResponseMessage PutMessage(int id, object dateUpdate) {
+            var dept = DbContext.Departments.Find(id);
+            var lastupdate = Convert.ToDateTime(dateUpdate);
+            if (dept == null) {
+                return Request.CreateResponse(HttpStatusCode.NotFound);
+            }
+             var res= dept.Discussion.Where(el => el.Date >= lastupdate).Select(el => new ChatDiscussionDto(el));
+             return Request.CreateResponse(HttpStatusCode.OK, res);
+        }
+
+
         // POST api/message
         public HttpResponseMessage PostMessage(ChatDiscussionDto chatDiscussion) {
-            //var dbMessage = new Message { LastMessageDate = DateTime.Now };
-            //dbMessage.Participants = new List<Profile> {
-            //            DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(0))),
-            //            DbContext.Profiles.Find(Convert.ToInt32(message.Participants.ElementAt(1))) };
-
-            //DbContext.Messages.Add(dbMessage);
-            //DbContext.SaveChanges();
             if (ModelState.IsValid) {
                 var dbMessage = DbContext.Departments.Find(chatDiscussion.DepartmentId);
 
@@ -41,8 +46,9 @@ namespace initialzr.ui.Controllers
                 };
 
                 dbMessage.Discussion.Add(diss);
-
                 DbContext.SaveChanges();
+
+                diss.Profile = DbContext.Profiles.Find(chatDiscussion.ProfileId);
 
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, new ChatDiscussionDto(diss));
                 response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = dbMessage.Id }));

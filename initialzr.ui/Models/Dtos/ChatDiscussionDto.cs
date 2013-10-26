@@ -13,6 +13,8 @@ namespace initialzr.ui.Models.Dtos {
         public int DepartmentId { get; set; }
         public int ProfileId { get; set; }
 
+        public string Profilename { get; set; }
+
         public ChatDiscussionDto() {
         }
 
@@ -22,6 +24,7 @@ namespace initialzr.ui.Models.Dtos {
             this.Date = entity.Date;
             this.DepartmentId = entity.DepartmentId;
             this.ProfileId = entity.ProfileId;
+            this.Profilename = entity.Profile.FirstName + " " + entity.Profile.LastName;
         }
     }
 }

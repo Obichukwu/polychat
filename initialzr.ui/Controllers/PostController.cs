@@ -52,12 +52,12 @@ namespace initialzr.ui.Controllers {
 
             DbContext.SaveChanges();
 
-            return Request.CreateResponse(HttpStatusCode.OK);
+            return Request.CreateResponse(HttpStatusCode.OK,new PostDto(dbPost));
         }
 
         // POST api/Post
         public HttpResponseMessage PostPost(PostDto post) {
-            if (ModelState.IsValid) {
+            if (ModelState.IsValid) { 
                 var dbPost = new Post {
                     Content = post.Content,
                     ContentType = post.ContentType,
@@ -67,6 +67,8 @@ namespace initialzr.ui.Controllers {
                 DbContext.Posts.Add(dbPost);
                 DbContext.SaveChanges();
 
+                dbPost.Owner = DbContext.Profiles.Find(post.OwnerId);
+                
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, new PostDto(dbPost));
                 response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = dbPost.Id }));
                 return response;
